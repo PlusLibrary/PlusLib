@@ -1,6 +1,4 @@
 #include "toggleButton.h"
-#include <pluslib/opengl/graphics2d.h>
-#include <pluslib/util/pointInt.h>
 
 #define COLOR_ON_R 48
 #define COLOR_ON_G 209
