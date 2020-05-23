@@ -13,7 +13,7 @@
 struct Block;
 
 Window* window;
-Graphics2D graphics;
+Graphics2D* graphics = Graphics2D::getInstance();
 Color* blockColors[8];
 Tetris* tetris = new Tetris();
 int keyState[MAX_KEY];
@@ -28,19 +28,19 @@ int main() {
 }
 
 void drawBlock(int x, int y) {
-    graphics.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    graphics->fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
 }
 
 void render() { 
-    graphics.pushMatrix();
-    graphics.translate(TRANSLATE_X, TRANSLATE_Y);
+    graphics->pushMatrix();
+    graphics->translate(TRANSLATE_X, TRANSLATE_Y);
     for (int y = 0; y < Tetris::BOARD_SIZE_HEIGHT; y++) {
         for (int x = 0; x < Tetris::BOARD_SIZE_WIDTH; x++) {
-            graphics.setColor(blockColors[tetris->getBlock(x, y)]);
+            graphics->setColor(blockColors[tetris->getBlock(x, y)]);
             drawBlock(x, Tetris::BOARD_SIZE_HEIGHT - y - 1);
         }
     }
-    graphics.setColor(blockColors[tetris->getCurrentType()]);
+    graphics->setColor(blockColors[tetris->getCurrentType()]);
     List<PointInt>* currentBlocks = tetris->getCurrent();
     currentBlocks->forEach([] (PointInt* p) {
         if (p->y < Tetris::BOARD_SIZE_HEIGHT) {
@@ -51,7 +51,7 @@ void render() {
     if (++count % 30 == 0) {
         tetris->progress(false);
     }
-    graphics.popMatrix();
+    graphics->popMatrix();
 }
 
 void keyEvent(int keyCode, int action) {

@@ -1,21 +1,61 @@
-#include <GLFW/glfw3.h>
-#include <math.h>
-#include <pluslib/util/list.h>
-#include "graphics2d.h"
-#include "color.h"
-#include <pluslib/util/pointDouble.h>
+#include <pluslib/opengl/graphics2d.h>
 
 #define COLOR_MAX 256.0
 #define CIRCLE_DETAIL_RATIO 1
 
-Color color(0, 0, 0);
+Graphics2D* Graphics2D::instance;
+
+Graphics2D* Graphics2D::getInstance() {
+    if (Graphics2D::instance == nullptr) {
+        Graphics2D::instance = new Graphics2D();
+    }
+    return Graphics2D::instance;
+}
+
+Graphics2D::Graphics2D() {
+    this->color = new Color(0, 0, 0);
+    this->textRenderer = TextRenderer::getInstance();
+}
 
 void Graphics2D::setColor(int r, int g, int b) {
-    color.setColor(r, g, b);
+    this->color->setColor(r, g, b);
 }
 
 void Graphics2D::setColor(Color* c) {
-    color.setColor(c->getR(), c->getG(), c->getB());
+    this->color->setColor(c->getR(), c->getG(), c->getB());
+}
+
+void Graphics2D::drawText(char* text, double x, double y) {
+    loadColor();
+    pushMatrix();
+    translate(x, y);
+    for (int i = 0; text[i] != '\0'; i++) {
+        Character* character = this->textRenderer->render(text[i]);
+        glBindTexture(GL_TEXTURE_2D , character->getTexture());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        pushMatrix();
+        translate(0, character->getOffset());
+        glBegin(GL_QUADS);
+        glTexCoord2d(0.0, 0.0);
+        glVertex2d(0.0, 0.0);
+        glTexCoord2d(0.0, 1.0);
+        glVertex2d(0.0, character->getHeight());
+        glTexCoord2d(1.0, 1.0);
+        glVertex2d(character->getWidth(), character->getHeight());
+        glTexCoord2d(1.0, 0.0);
+        glVertex2d(character->getWidth(), 0.0);
+        glEnd();
+        popMatrix();
+        glDisable(GL_TEXTURE_2D);
+        translate(character->getWidth(), 0);
+    }
+    popMatrix();   
 }
 
 void Graphics2D::drawLine(double x0, double y0, double x1, double y1) {
@@ -50,7 +90,7 @@ void Graphics2D::fillCircle(double centerX, double centerY, double radius) {
 }
 
 void Graphics2D::loadColor() {
-    glColor3d(color.getR(), color.getG(), color.getB());
+    glColor3d(color->getR(), color->getG(), color->getB());
 }
 
 void Graphics2D::processVertices(GLenum type, List<PointDouble>* vertices) {

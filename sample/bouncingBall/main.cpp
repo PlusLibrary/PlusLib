@@ -10,17 +10,17 @@
 
 int frameCounter = 0;
 Window w;
-Graphics2D graphics;
+Graphics2D* graphics = Graphics2D::getInstance();
 List<Ball> balls;
 
 void render() {
-    graphics.setColor(255, 0, 0);
+    graphics->setColor(255, 0, 0);
     if (frameCounter++ % 10 == 0 && balls.size() < 512) {
         balls.add(new Ball(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
         printf("%f / %d / %d\n", w.time(), frameCounter, balls.size());
     }
     balls.forEach([](Ball* b) {
-        b->render(&graphics, WINDOW_WIDTH, WINDOW_HEIGHT);
+        b->render(graphics, WINDOW_WIDTH, WINDOW_HEIGHT);
     });
 }
 

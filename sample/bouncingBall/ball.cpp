@@ -11,12 +11,10 @@
 Ball::Ball(double x, double y) {
     this->x = x;
     this->y = y;
-    Random* r = new Random();
-    double angle = r->getDouble();
+    double angle = Random::getDouble();
     this->dx = SPEED * cos(angle * M_PI * 2);
     this->dy = SPEED * sin(angle * M_PI * 2);
-    this->color = Color::fromHSB(r->getDouble(), 0.25, 0.9375);
-    delete(r);
+    this->color = Color::fromHSB(Random::getDouble(), 0.25, 0.9375);
 }
 
 Ball::~Ball() {

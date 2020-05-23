@@ -61,7 +61,7 @@ void Tetris::finalizeBlock() {
                     this->board[x][yy] = this->board[x][yy + 1];
                 }
             }
-            y++;
+            y--;
         }
     }
     newBlock();

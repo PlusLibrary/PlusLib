@@ -1,6 +1,4 @@
 libPath="../../"
 libName="pluslib"
-libBuildUtil="${libPath}${libName}/util/*.cpp"
-libBuildOpengl="${libPath}${libName}/opengl/*.cpp"
 
-g++ ./*.cpp $libBuildUtil $libBuildOpengl -I $libPath -o bin -lglfw -lGL -lm
+g++ ./*.cpp $(find ../../pluslib -type f -iregex ".*\.cpp") -I $libPath -I /usr/include/freetype2 -o bin -lglfw -lGL -lm -lfreetype
