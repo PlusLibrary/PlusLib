@@ -11,13 +11,15 @@ TextRenderer::TextRenderer() {
     
 }
 
-Character* TextRenderer::render(unsigned char character) {
+Character* TextRenderer::render(char16_t character, int size) {
     for (int i = 0; i < characterList->size(); i++) {
         Character* c = characterList->get(i);
-        if (character == c->getCharCode()) {
+        if (character == c->getCharCode() && size == c->getSize()) {
             return c;
         }
     }
+    printf("creating new character: %x\n", character);
+    FT_Set_Pixel_Sizes(*face, 0, size);
     FT_Load_Glyph(*TextRenderer::face, FT_Get_Char_Index(*TextRenderer::face, character), FT_LOAD_RENDER);
     FT_Bitmap* bitmap = new FT_Bitmap();
     bitmap = &((*TextRenderer::face)->glyph->bitmap);
@@ -26,7 +28,7 @@ Character* TextRenderer::render(unsigned char character) {
     glBindTexture(GL_TEXTURE_2D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, bitmap->width, bitmap->rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, bitmap->buffer);
-    Character* c = new Character(character, texture, bitmap->width, bitmap->rows, SIZE - (*TextRenderer::face)->glyph->bitmap_top);
+    Character* c = new Character(character, texture, bitmap->width, bitmap->rows, SIZE - (*TextRenderer::face)->glyph->bitmap_top, size);
     characterList->add(c);
     return c;
 }
@@ -38,7 +40,7 @@ int TextRenderer::init() {
         printf("freeType init error\n");
         return -1;
     }
-    error = FT_New_Face(*TextRenderer::library, "/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf", 0, TextRenderer::face = new FT_Face());
+    error = FT_New_Face(*TextRenderer::library, "./font.otf", 0, TextRenderer::face = new FT_Face());
     if (error == FT_Err_Unknown_File_Format) {
         printf("freeType: unknown file format\n");
         return -1;
@@ -47,6 +49,7 @@ int TextRenderer::init() {
         return -1;
     }
     FT_Set_Pixel_Sizes(*face, 0, SIZE);
+    FT_Select_Charmap(*TextRenderer::face , FT_ENCODING_UNICODE);
     return 0;
 }
 

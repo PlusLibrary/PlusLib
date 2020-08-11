@@ -2,6 +2,10 @@
 
 #define COLOR_MAX 256.0
 #define CIRCLE_DETAIL_RATIO 1
+#define CHARACTER_WIDTH 27
+#define LETTER_SPACING 3
+#define DEFAULT_FONT_SIZE 48
+#define FONT_WIDTH_RATIO .55
 
 Graphics2D* Graphics2D::instance;
 
@@ -15,6 +19,7 @@ Graphics2D* Graphics2D::getInstance() {
 Graphics2D::Graphics2D() {
     this->color = new Color(0, 0, 0);
     this->textRenderer = TextRenderer::getInstance();
+    this->fontSize = DEFAULT_FONT_SIZE;
 }
 
 void Graphics2D::setColor(int r, int g, int b) {
@@ -25,20 +30,31 @@ void Graphics2D::setColor(Color* c) {
     this->color->setColor(c->getR(), c->getG(), c->getB());
 }
 
-void Graphics2D::drawText(char* text, double x, double y) {
+void Graphics2D::setFontSize(int size) {
+    this->fontSize = size;
+}
+
+int Graphics2D::textWidth(char16_t* text) {
+    int totalWidth = 0;
+    for (; text[totalWidth] != '\0'; totalWidth++) {}
+    return totalWidth * this->fontSize * FONT_WIDTH_RATIO;
+}
+
+void Graphics2D::drawText(char16_t* text, double y, int parentWidth) {
+    int totalWidth = 0;
+    for (; text[totalWidth] != '\0'; totalWidth++) {}
+    drawText(text, (parentWidth - totalWidth * this->fontSize * FONT_WIDTH_RATIO) / 2, y);
+}
+
+void Graphics2D::drawText(char16_t* text, double x, double y) {
     loadColor();
     pushMatrix();
     translate(x, y);
     for (int i = 0; text[i] != '\0'; i++) {
-        Character* character = this->textRenderer->render(text[i]);
-        glBindTexture(GL_TEXTURE_2D , character->getTexture());
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_TEXTURE_2D);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        Character* character = this->textRenderer->render(text[i], this->fontSize);
+        initCharacterTexture(character->getTexture());
+        int offset = (this->fontSize * FONT_WIDTH_RATIO - character->getWidth()) / 2;
+        translate(offset, 0);
         pushMatrix();
         translate(0, character->getOffset());
         glBegin(GL_QUADS);
@@ -53,9 +69,9 @@ void Graphics2D::drawText(char* text, double x, double y) {
         glEnd();
         popMatrix();
         glDisable(GL_TEXTURE_2D);
-        translate(character->getWidth(), 0);
+        translate(character->getWidth() + offset, 0);
     }
-    popMatrix();   
+    popMatrix();
 }
 
 void Graphics2D::drawLine(double x0, double y0, double x1, double y1) {
@@ -112,4 +128,15 @@ void Graphics2D::popMatrix() {
 
 void Graphics2D::translate(double x, double y) {
     glTranslated(x, y, 0);
+}
+
+void Graphics2D::initCharacterTexture(GLuint texture) {
+    glBindTexture(GL_TEXTURE_2D , texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

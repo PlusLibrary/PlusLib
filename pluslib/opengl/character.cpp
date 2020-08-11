@@ -1,14 +1,15 @@
 #include <pluslib/opengl/character.h>
 
-Character::Character(unsigned char charCode, GLuint texture, unsigned int width, unsigned int height, int offset) {
+Character::Character(char16_t charCode, GLuint texture, unsigned int width, unsigned int height, int offset, int size) {
     this->charCode = charCode;
     this->texture = texture;
     this->width = width;
     this->height = height;
     this->offset = offset;
+    this->size = size;
 }
 
-unsigned char Character::getCharCode() {
+char16_t Character::getCharCode() {
     return this->charCode;
 }
 
@@ -26,4 +27,8 @@ unsigned int Character::getHeight() {
 
 int Character::getOffset() {
     return this->offset;
+}
+
+int Character::getSize() {
+    return this->size;
 }

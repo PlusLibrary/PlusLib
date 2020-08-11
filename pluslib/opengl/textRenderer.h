@@ -9,7 +9,7 @@
 class TextRenderer {
     public:
         static TextRenderer* getInstance();
-        Character* render(unsigned char character);
+        Character* render(char16_t character, int size);
     private:
         TextRenderer();
         static TextRenderer* instance;

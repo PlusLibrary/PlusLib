@@ -3,16 +3,18 @@
 
 class Character {
     public:
-        Character(unsigned char charCode, GLuint texture, unsigned int width, unsigned int height, int offset);
-        unsigned char getCharCode();
+        Character(char16_t charCode, GLuint texture, unsigned int width, unsigned int height, int offset, int size);
+        char16_t getCharCode();
         unsigned int getWidth();
         unsigned int getHeight();
         GLuint getTexture();
         int getOffset();
+        int getSize();
     private:
-        unsigned char charCode;
+        char16_t charCode;
         unsigned int width;
         unsigned int height;
         GLuint texture;
         int offset;
+        int size;
 };

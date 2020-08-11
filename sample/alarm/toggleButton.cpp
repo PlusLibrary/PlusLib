@@ -18,7 +18,15 @@
 #define DEFAULT_INTERVAL_RATIO 2.5
 
 ToggleButton::ToggleButton() {
-    this->location = new PointInt(0, 0);
+    init(0, 0);
+}
+
+ToggleButton::ToggleButton(int x, int y) {
+    init(x, y);
+}
+
+void ToggleButton::init(int x, int y) {
+    this->location = new PointInt(x, y);
     this->hovered = 0;
     this->knobFrame = 0;
     this->direction = 0;
